@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# production
+dist/
+/build
+
+# env files
+.env
+.env.*
+!.env.example
+
+# database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# next.js (legacy)
+/.next/
+/out/
+next-env.d.ts
+
+# misc
+.DS_Store
+*.pem
+*.log
+*.zip
+.idea/
+.vscode/
+
+# typescript
+*.tsbuildinfo

@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Survey {
+  id        String     @id @default(cuid())
+  titleTR   String     @default("")
+  titleEN   String     @default("")
+  type      String     // "SATISFACTION", "SURVEILLANCE"
+  questions Question[]
+  responses Response[]
+  revision  String     @default("1.0")
+  createdAt DateTime   @default(now())
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  surveyId      String
+  survey        Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  type          String   // "CHOICE", "RATE", "TEXT"
+  textTR        String
+  textEN        String
+  descriptionTR String?
+  descriptionEN String?
+  required      Boolean  @default(true)
+  order         Int
+  options       Option[]
+  answers       Answer[]
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  textTR     String
+  textEN     String
+}
+
+model Response {
+  id           String   @id @default(cuid())
+  surveyId     String
+  survey       Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  customerInfo String   // JSON string
+  language     String   @default("tr")
+  answers      Answer[]
+  createdAt    DateTime @default(now())
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  responseId String
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value      String
+}

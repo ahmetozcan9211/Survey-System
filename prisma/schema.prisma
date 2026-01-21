@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Survey {
+  id        String    @id @default(cuid())
+  titleTR   String    @default("") // Default for migration, will populate
+  titleEN   String    @default("")
+  // Keep title for backward compatibility or remove? Let's remove old title to force clean state
+  type      String    // "SATISFACTION", "SURVEILLANCE"
+  questions Question[]
+  responses Response[]
+  createdAt DateTime  @default(now())
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  surveyId      String
+  survey        Survey   @relation(fields: [surveyId], references: [id])
+  type          String   // "CHOICE", "RATE", "TEXT"
+  textTR        String
+  textEN        String
+  descriptionTR String?
+  descriptionEN String?
+  required      Boolean  @default(true) // Default to true
+  order         Int
+  options       Option[]
+  answers       Answer[]
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  textTR     String
+  textEN     String
+}
+
+model Response {
+  id           String   @id @default(cuid())
+  surveyId     String
+  survey       Survey   @relation(fields: [surveyId], references: [id])
+  customerInfo String   // JSON string
+  language     String   @default("tr") // "tr" or "en"
+  answers      Answer[]
+  createdAt    DateTime @default(now())
+}
+
+model Answer {
+  id         String   @id @default(cuid())
+  responseId String
+  response   Response @relation(fields: [responseId], references: [id])
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  value      String
+}
